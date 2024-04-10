@@ -1,5 +1,9 @@
 h1 {
-    color: whitesmoke;
+    color: white;
     text-align: center;
     background-color: purple;
+}
+
+.temp {
+    color: red;
 }
