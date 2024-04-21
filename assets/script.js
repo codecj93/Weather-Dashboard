@@ -14,11 +14,12 @@ function fetchFiveDay(event) {
         .then(function (data) {
             console.log('5 day');
             console.log(data)
-            // createCard(data.list[0], false); // day 1
-            // createCard(data.list[9], false); // day 2
-            // createCard(data.list[17], false); // day 3
-            // createCard(data.list[25], false); // day 4
-            // createCard(data.list[33], false); // day 5
+            fiveDayDiv.innerHTML = ""
+            createCard(data.list[0], false); // day 1
+            createCard(data.list[9], false); // day 2
+            createCard(data.list[17], false); // day 3
+            createCard(data.list[25], false); // day 4
+            createCard(data.list[33], false); // day 5
         });
         
 }
@@ -32,12 +33,15 @@ function fetchCurrentDay(event) {
             return response.json();
         })
         .then(function (data) {
-            console.log('Github Repo Issues \n----------');
+            
             console.log(data);
         
             createCard(data, true);
             fetchFiveDay(event);
+            renderSearchHistory ()
         });
+
+    
         
 }
 
@@ -54,7 +58,7 @@ function createCard(data, shouldDisplayCityName) {
         header = document.createElement('h2');
         header.append(data.name);
     } else {
-        fiveDayDiv.setAttribute('class', 'fiveday');
+        // fiveDayDiv.setAttribute('class', 'fiveday');
         header = document.createElement('h2');
         header.append(data.dt_txt);
 
@@ -70,8 +74,9 @@ function createCard(data, shouldDisplayCityName) {
     const humidity = document.createElement('p');
     humidity.innerText = `Humidity: ${data.main.humidity} %`;
 
-    const icon = document.createElement('p');
-    icon.innerText = `${data.weather.icon}`;
+    const icon = document.createElement('img');
+    icon.src = `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`
+    
 
 
 
@@ -88,7 +93,8 @@ if (shouldDisplayCityName) {
     currentDayDiv.innerHTML = ""
   currentDayDiv.append(container)  
 } else {
-    fiveDayDiv.innerHTML = ""
+    // fiveDayDiv.innerHTML = ""
+    container.setAttribute('class', 'fiveday');
     fiveDayDiv.append(container); 
 }
   
@@ -104,8 +110,9 @@ if (shouldDisplayCityName) {
 
 function addToHistory (cityName) {
     const history = JSON.parse(localStorage.getItem('history')) || [];
-    history.push(cityName);
-    localStorage.setItem('history', JSON.stringify(history));
+    history.unshift(cityName);
+    const slicedHistory = history.slice(0,5)
+    localStorage.setItem('history', JSON.stringify(slicedHistory));
 }
 
 // let lastSearchedCity = '';
@@ -115,18 +122,26 @@ function addToHistory (cityName) {
 //         const lastCityElement = 
         
 //     }
+function handleHistoryClick(event) {
+cityInput.value = event.target.textContent
+searchButton.click()
+}
 
-// function renderSearchHistory ()
-//  const searchHistoryElement = document.getElementById('searchHistory')
-//  searchHistoryData.forEach(item => {
-//     const li = document.createElement('li');
-//     li.textContent = `${item.city} - Searched on ${item.timestamp}`;
-//     searchHistoryElement.appendChild(li);
-// });
-
+function renderSearchHistory () { 
+ const searchHistoryData = JSON.parse(localStorage.getItem('history')) || [];
+ const searchHistoryElement = document.getElementById('searchHistory')
+ searchHistoryElement.innerHTML = ""
+ searchHistoryData.forEach(item => {
+    const button = document.createElement('button');
+    button.textContent = item
+    button.addEventListener('click', handleHistoryClick) 
+    searchHistoryElement.appendChild(button);
+});
+}
 
 
 
 
 searchButton.addEventListener('click', fetchCurrentDay) 
 
+renderSearchHistory ()
